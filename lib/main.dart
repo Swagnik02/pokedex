@@ -22,8 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue, brightness: Brightness.dark),
-        brightness: Brightness.dark,
+            seedColor: Colors.deepOrangeAccent, brightness: Brightness.dark),
       ),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,

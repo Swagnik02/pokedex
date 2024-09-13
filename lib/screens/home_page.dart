@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:pokedex/providers/poke_provider.dart';
 import 'package:pokedex/screens/pokemon_data_page.dart';
 import 'package:provider/provider.dart';
+import 'package:pokedex/extensions/string_casing_extension.dart'; // Ensure this import is correct
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  HomePageState createState() => HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
@@ -38,8 +39,11 @@ class HomePageState extends State<HomePage> {
               itemCount: results.length,
               itemBuilder: (context, index) {
                 final pokemon = results[index];
+                final pokemonName = pokemon['name']
+                    .toString()
+                    .toCapitalized; // Use the extension here
                 return ListTile(
-                  title: Text(pokemon['name']),
+                  title: Text(pokemonName),
                   onTap: () {
                     Navigator.push(
                       context,

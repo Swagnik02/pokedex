@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/extensions/string_casing_extension.dart';
 import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/providers/poke_provider.dart';
 import 'package:provider/provider.dart';
@@ -7,12 +8,15 @@ import 'package:carousel_slider/carousel_slider.dart';
 class PokemonDataPage extends StatelessWidget {
   final String pokemonName;
 
-  const PokemonDataPage({super.key, required this.pokemonName});
+  const PokemonDataPage({
+    super.key,
+    required this.pokemonName,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(pokemonName)),
+      appBar: AppBar(title: Text(pokemonName.toString().toCapitalized)),
       body: FutureBuilder<PokeModel?>(
         future: Provider.of<PokemonProvider>(context, listen: false)
             .fetchPokemonData(pokemonName),
