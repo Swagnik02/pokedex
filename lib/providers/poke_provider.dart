@@ -6,10 +6,9 @@ import 'package:pokedex/models/poke_model.dart';
 
 const restfulApi = 'https://pokeapi.co/api/v2/';
 
-// Provider for managing Pokémon data
 class PokemonProvider with ChangeNotifier {
-  PokeModel? _pokeModel;
-  PokeModel? get pokeModel => _pokeModel;
+  List<Pokemon> _pokeList = [];
+  List<Pokemon> get pokeList => _pokeList;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -17,19 +16,37 @@ class PokemonProvider with ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchPokeList() async {
+  // Fetch a list of Pokémon with details like sprites and types
+  Future<void> fetchPokeList(int offset) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
+    int limit = 6; // You can adjust the limit as per your requirement
+
     try {
-      final response =
-          await http.get(Uri.parse('${restfulApi}pokemon?limit=10&offset=0'));
+      // Fetch list of basic Pokémon data (name and url)
+      final response = await http
+          .get(Uri.parse('${restfulApi}pokemon?limit=$limit&offset=$offset'));
       if (response.statusCode == 200) {
-        log(response.body);
-        _pokeModel = PokeModel.fromJson(jsonDecode(response.body));
+        // Parse the initial list of Pokémon
+        final rawData = jsonDecode(response.body);
+        PokeModel pokeModel = PokeModel.fromJson(rawData);
+
+        // Clear the current list
+        _pokeList = pokeModel.results;
+
+        // Fetch additional data for each Pokémon in parallel
+        for (Pokemon pokemon in _pokeList) {
+          final details = await fetchPokemonData(pokemon.url);
+          if (details != null) {
+            pokemon.updateDetails(details);
+          }
+        }
+
+        notifyListeners();
       } else {
-        throw Exception('Failed to load data');
+        throw Exception('Failed to load Pokémon list');
       }
     } catch (e) {
       _errorMessage = e.toString();
@@ -39,12 +56,13 @@ class PokemonProvider with ChangeNotifier {
     }
   }
 
-  Future<PokeModel?> fetchPokemonData(String pokemonName) async {
+  // Fetch Pokémon details like sprites, types, and weight
+  Future<Map<String, dynamic>?> fetchPokemonData(String pokemonUrl) async {
     try {
-      final response =
-          await http.get(Uri.parse('$restfulApi/pokemon/$pokemonName'));
+      final response = await http.get(Uri.parse(pokemonUrl));
       if (response.statusCode == 200) {
-        return PokeModel.fromJson(jsonDecode(response.body));
+        log(response.body);
+        return jsonDecode(response.body);
       } else {
         throw Exception('Failed to load Pokémon details');
       }
