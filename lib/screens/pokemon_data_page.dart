@@ -19,43 +19,67 @@ class PokemonDataPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: domColor,
-      appBar: AppBar(
-        backgroundColor: domColor,
-        elevation: 0,
+    final ThemeData dynamicTheme = ThemeData(
+      primaryColor: domColor,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: domColor,
       ),
-      body: FutureBuilder<PokeData?>(
-        future: Future.delayed(Duration.zero, () {
-          return Provider.of<PokemonProvider>(context, listen: false)
-              .findPokemonByName(pokemonName);
-        }),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final pokeData = snapshot.data;
+      scaffoldBackgroundColor: domColor.withOpacity(0.8),
+      tabBarTheme: TabBarTheme(
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: domColor, width: 4),
+        ),
+        labelColor: domColor,
+        unselectedLabelColor: Colors.grey,
+      ),
+    );
 
-            if (pokeData == null) {
+    return Theme(
+      data: dynamicTheme,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white60,
+            ),
+          ),
+        ),
+        body: FutureBuilder<PokeData?>(
+          future: Future.delayed(Duration.zero, () {
+            return Provider.of<PokemonProvider>(context, listen: false)
+                .findPokemonByName(pokemonName);
+          }),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              final pokeData = snapshot.data;
+
+              if (pokeData == null) {
+                return const Center(child: Text('No data available'));
+              }
+
+              return DefaultTabController(
+                length: 4,
+                child: Stack(
+                  children: [
+                    _header(context, pokeData),
+                    _stats(pokeData),
+                    _image(pokeData),
+                  ],
+                ),
+              );
+            } else {
               return const Center(child: Text('No data available'));
             }
-
-            return DefaultTabController(
-              length: 4,
-              child: Stack(
-                children: [
-                  _header(context, pokeData),
-                  _stats(pokeData),
-                  _image(pokeData),
-                ],
-              ),
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
+          },
+        ),
       ),
     );
   }
@@ -93,7 +117,7 @@ class PokemonDataPage extends StatelessWidget {
                 const TabBar(
                   tabs: [
                     Tab(text: 'About'),
-                    Tab(text: 'Base Stats'),
+                    Tab(text: 'Stats'),
                     Tab(text: 'Evolution'),
                     Tab(text: 'Moves'),
                   ],
