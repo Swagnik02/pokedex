@@ -1,54 +1,26 @@
-// class PokeModel {
-//   final Map<String, dynamic> data;
-
-//   PokeModel({required this.data});
-
-//   factory PokeModel.fromJson(Map<String, dynamic> json) {
-//     return PokeModel(data: json);
-//   }
-// }
-
-class PokeModel {
-  final List<Pokemon> results;
-
-  PokeModel({required this.results});
-
-  factory PokeModel.fromJson(Map<String, dynamic> json) {
-    var list = json['results'] as List;
-    List<Pokemon> pokemonList = list.map((i) => Pokemon.fromJson(i)).toList();
-    return PokeModel(results: pokemonList);
-  }
-}
-
-class Pokemon {
-  final String name;
+class PokeData {
   final String url;
-  String? spriteUrl;
-  List<String>? types;
-  int? weight;
+  final String name;
+  final Map<String, dynamic> details;
 
-  Pokemon({
-    required this.name,
+  PokeData({
     required this.url,
-    this.spriteUrl,
-    this.types,
-    this.weight,
+    required this.name,
+    required this.details,
   });
 
-  factory Pokemon.fromJson(Map<String, dynamic> json) {
-    return Pokemon(
-      name: json['name'],
+  // Factory constructor to create an instance of PokeData from a JSON object
+  factory PokeData.fromJson(Map<String, dynamic> json) {
+    return PokeData(
       url: json['url'],
+      name: json['name'],
+      details:
+          json['details'] ?? {}, // Assign an empty map if 'details' is null
     );
   }
 
-  // This function will update details like sprites and types later
+  // Method to update the details later
   void updateDetails(Map<String, dynamic> detailsJson) {
-    spriteUrl =
-        detailsJson['sprites']['other']?['official-artwork']?['front_default'];
-    types = (detailsJson['types'] as List)
-        .map((typeInfo) => typeInfo['type']['name'] as String)
-        .toList();
-    weight = detailsJson['weight'];
+    details.addAll(detailsJson);
   }
 }

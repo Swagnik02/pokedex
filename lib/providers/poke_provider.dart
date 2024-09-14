@@ -7,8 +7,8 @@ import 'package:pokedex/models/poke_model.dart';
 const restfulApi = 'https://pokeapi.co/api/v2/';
 
 class PokemonProvider with ChangeNotifier {
-  List<Pokemon> _pokeList = [];
-  List<Pokemon> get pokeList => _pokeList;
+  List<PokeData> _pokeList = [];
+  List<PokeData> get pokeList => _pokeList;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -16,13 +16,13 @@ class PokemonProvider with ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // Fetch a list of Pokémon with details like sprites and types
+  // Fetch a list of Pokémon with details
   Future<void> fetchPokeList(int offset) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    int limit = 6; // You can adjust the limit as per your requirement
+    int limit = 6;
 
     try {
       // Fetch list of basic Pokémon data (name and url)
@@ -31,18 +31,22 @@ class PokemonProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         // Parse the initial list of Pokémon
         final rawData = jsonDecode(response.body);
-        PokeModel pokeModel = PokeModel.fromJson(rawData);
+        List<PokeData> fetchedPokeList = (rawData['results'] as List)
+            .map((pokemonJson) => PokeData.fromJson(pokemonJson))
+            .toList();
 
-        // Clear the current list
-        _pokeList = pokeModel.results;
+        _pokeList = fetchedPokeList;
 
-        // Fetch additional data for each Pokémon in parallel
-        for (Pokemon pokemon in _pokeList) {
-          final details = await fetchPokemonData(pokemon.url);
+        // Fetch additional data for each Pokémon concurrently
+        List<Future<void>> fetchDetailsTasks = _pokeList.map((pokeData) async {
+          final details = await fetchPokemonDetails(pokeData.url);
           if (details != null) {
-            pokemon.updateDetails(details);
+            pokeData.updateDetails(details);
           }
-        }
+        }).toList();
+
+        // Wait for all details fetch tasks to complete
+        await Future.wait(fetchDetailsTasks);
 
         notifyListeners();
       } else {
@@ -57,7 +61,7 @@ class PokemonProvider with ChangeNotifier {
   }
 
   // Fetch Pokémon details like sprites, types, and weight
-  Future<Map<String, dynamic>?> fetchPokemonData(String pokemonUrl) async {
+  Future<Map<String, dynamic>?> fetchPokemonDetails(String pokemonUrl) async {
     try {
       final response = await http.get(Uri.parse(pokemonUrl));
       if (response.statusCode == 200) {
@@ -69,6 +73,14 @@ class PokemonProvider with ChangeNotifier {
     } catch (e) {
       log('Error: $e');
       return null;
+    }
+  }
+
+  PokeData? findPokemonByName(String name) {
+    try {
+      return _pokeList.firstWhere((pokemon) => pokemon.name == name);
+    } catch (e) {
+      return null; // If the Pokémon is not found
     }
   }
 }

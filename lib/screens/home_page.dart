@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/providers/poke_provider.dart';
 import 'package:pokedex/widgets/custom_pokemon_tile.dart';
 import 'package:provider/provider.dart';
@@ -13,16 +14,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int offset = 0;
   int offsetChangeValue = 6;
+
   @override
   void initState() {
     super.initState();
-    // Fetch data when the widget is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPokemonList();
     });
   }
 
-  // Fetch Pokémon list from the provider
   void _fetchPokemonList() {
     Provider.of<PokemonProvider>(context, listen: false).fetchPokeList(offset);
   }
@@ -44,7 +44,6 @@ class _HomePageState extends State<HomePage> {
               child: Text('Error: ${provider.errorMessage}'),
             );
           } else if (provider.pokeList.isNotEmpty) {
-            // Pokémon list is available
             return Column(
               children: [
                 Expanded(
@@ -52,11 +51,12 @@ class _HomePageState extends State<HomePage> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2),
+                      crossAxisCount: 2,
+                    ),
                     itemCount: provider.pokeList.length,
                     itemBuilder: (context, index) {
-                      final pokemon = provider.pokeList[index];
-                      return customPokemonTile(pokemon, context);
+                      final pokeData = provider.pokeList[index];
+                      return customPokemonTile(pokeData, context);
                     },
                   ),
                 ),
@@ -111,3 +111,40 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
+
+  // Widget _imageViewer(PokeData? data) {
+  //   bool isCarousel = false;
+  //   var sprites = data!.details['sprites'];
+
+  //   // Extract sprite URLs into a list, handling potential nulls
+  //   List<String> spriteUrls = [
+  //     sprites['front_default'] as String?,
+  //     sprites['back_default'] as String?,
+  //     sprites['other']?['official-artwork']?['front_default'] as String?,
+  //   ].whereType<String>().toList();
+
+  //   String singleSprite =
+  //       sprites['other']?['official-artwork']?['front_default'];
+
+  //   return isCarousel
+  //       ? CarouselSlider(
+  //           options: CarouselOptions(
+  //             height: 300.0,
+  //             autoPlay: true,
+  //             enlargeCenterPage: true,
+  //           ),
+  //           items: spriteUrls.map((url) {
+  //             return Builder(
+  //               builder: (BuildContext context) {
+  //                 return Image.network(
+  //                   url,
+  //                   fit: BoxFit.contain,
+  //                 );
+  //               },
+  //             );
+  //           }).toList(),
+  //         )
+  //       : Image.network(singleSprite);
+  // }

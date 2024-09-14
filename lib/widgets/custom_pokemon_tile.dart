@@ -1,52 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/extensions/string_casing_extension.dart';
-import 'package:pokedex/extensions/type_colours.dart';
 import 'package:pokedex/models/poke_model.dart';
-import 'package:pokedex/screens/pokemon_data_page.dart'; // Import the package
+import 'package:pokedex/extensions/type_colours.dart';
+import 'package:pokedex/screens/pokemon_data_page.dart';
 
-Widget customPokemonTile(Pokemon pokemon, BuildContext context) {
+Widget customPokemonTile(PokeData pokedata, BuildContext context) {
   return GestureDetector(
     onTap: () {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PokemonDataPage(
-            pokemonName: pokemon.name,
+            pokemonName: pokedata.name,
           ),
         ),
       );
     },
     child: Card(
-      surfaceTintColor:
-          typeColors[pokemon.types!.first.toLowerCase()] ?? Colors.grey,
+      surfaceTintColor: typeColors[
+              pokedata.details['types']?[0]['type']['name'].toLowerCase()] ??
+          Colors.grey,
       shadowColor: Colors.grey,
       child: Column(
         children: [
-          pokemon.spriteUrl != null
-              ? Image.network(
-                  pokemon.spriteUrl!,
-                  height: 100,
-                )
-              : const CircularProgressIndicator(),
+          Hero(
+            tag: pokedata.name,
+            child: pokedata.details['sprites']?['front_default'] != null
+                ? Image.network(
+                    pokedata.details['sprites']['front_default'],
+                    height: 100,
+                  )
+                : const CircularProgressIndicator(),
+          ),
           Text(
-            pokemon.name.toCapitalized,
+            pokedata.name,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          pokemon.types != null
-              ? Wrap(
-                  spacing: 8.0,
-                  children: pokemon.types!.map((type) {
-                    return Chip(
-                      label: Text(
-                        type.toString().toCapitalized,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor:
-                          typeColors[type.toLowerCase()] ?? Colors.grey,
-                    );
-                  }).toList(),
-                )
-              : const Text('Loading...'),
+          if (pokedata.details['types'] != null)
+            Wrap(
+              spacing: 8.0,
+              children: pokedata.details['types'].map<Widget>((type) {
+                return Chip(
+                  label: Text(
+                    type['type']['name'],
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor:
+                      typeColors[type['type']['name'].toLowerCase()] ??
+                          Colors.grey,
+                );
+              }).toList(),
+            ),
         ],
       ),
     ),
