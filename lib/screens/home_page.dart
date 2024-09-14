@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/providers/poke_provider.dart';
 import 'package:pokedex/widgets/custom_pokemon_tile.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentCount = (MediaQuery.of(context).size.width ~/ 200).toInt();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poké Tab'),
@@ -47,19 +49,16 @@ class _HomePageState extends State<HomePage> {
             return Column(
               children: [
                 Expanded(
-                  child: GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                    ),
-                    itemCount: provider.pokeList.length,
-                    itemBuilder: (context, index) {
-                      final pokeData = provider.pokeList[index];
-                      return customPokemonTile(pokeData, context);
-                    },
+                    child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: max(currentCount, 2),
                   ),
-                ),
+                  itemCount: provider.pokeList.length,
+                  itemBuilder: (context, index) {
+                    final pokeData = provider.pokeList[index];
+                    return customPokemonTile(pokeData, context);
+                  },
+                )),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(

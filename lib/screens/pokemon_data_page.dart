@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/providers/poke_provider.dart';
