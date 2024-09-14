@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/extensions/string_casing_extension.dart';
 import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/extensions/type_colours.dart';
 import 'package:pokedex/screens/pokemon_data_page.dart';
 
 Widget customPokemonTile(PokeData pokedata, BuildContext context) {
+  var domColor =
+      typeColors[pokedata.details['types']?[0]['type']['name'].toLowerCase()] ??
+          Colors.grey;
   return GestureDetector(
     onTap: () {
       Navigator.push(
@@ -11,14 +15,13 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
         MaterialPageRoute(
           builder: (context) => PokemonDataPage(
             pokemonName: pokedata.name,
+            domColor: domColor,
           ),
         ),
       );
     },
     child: Card(
-      surfaceTintColor: typeColors[
-              pokedata.details['types']?[0]['type']['name'].toLowerCase()] ??
-          Colors.grey,
+      surfaceTintColor: domColor,
       shadowColor: Colors.grey,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -28,7 +31,7 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  '#${pokedata.details['id']}',
+                  pokedata.details['id'].toString().toPokedexId,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
@@ -36,7 +39,7 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
             Row(
               children: [
                 Text(
-                  pokedata.name,
+                  pokedata.name.toCapitalized,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],

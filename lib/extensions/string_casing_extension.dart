@@ -6,3 +6,9 @@ extension StringCasingExtension on String {
       .map((str) => str.toCapitalized)
       .join(' ');
 }
+
+extension IntCastingExtension on dynamic {
+  String get toPokedexId {
+    return '#${toString().padLeft(3, '0')}';
+  }
+}
