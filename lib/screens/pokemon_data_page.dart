@@ -4,6 +4,7 @@ import 'package:pokedex/extensions/string_casing_extension.dart';
 import 'package:pokedex/extensions/type_colours.dart';
 import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/providers/poke_provider.dart';
+import 'package:pokedex/widgets/themes.dart';
 import 'package:provider/provider.dart';
 
 class PokemonDataPage extends StatelessWidget {
@@ -90,8 +91,6 @@ class PokemonDataPage extends StatelessWidget {
                   height: 40,
                 ),
                 const TabBar(
-                  labelColor: Colors.black,
-                  indicatorColor: Colors.green,
                   tabs: [
                     Tab(text: 'About'),
                     Tab(text: 'Base Stats'),
@@ -117,7 +116,7 @@ class PokemonDataPage extends StatelessWidget {
     );
   }
 
-  Padding _header(BuildContext context, PokeData pokeData) {
+  Widget _header(BuildContext context, PokeData pokeData) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -128,10 +127,7 @@ class PokemonDataPage extends StatelessWidget {
             children: [
               Text(
                 pokeData.name.toCapitalized,
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                style: TextThemeStyle(context).themeHeadlineLarge,
               ),
               Wrap(
                 children: pokeData.details['types'].map<Widget>((type) {
@@ -142,7 +138,8 @@ class PokemonDataPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        type['type']['name'],
+                        type['type']['name'].toString().toCapitalized,
+                        style: TextThemeStyle(context).themeOfChips,
                       ),
                     ),
                   );
@@ -153,11 +150,8 @@ class PokemonDataPage extends StatelessWidget {
           Column(
             children: [
               Text(
-                pokeData.details['id'].toString(),
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                pokeData.details['id'].toString().toPokedexId,
+                style: TextThemeStyle(context).themeHeadlineLarge,
               ),
             ],
           ),

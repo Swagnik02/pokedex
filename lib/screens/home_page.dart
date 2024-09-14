@@ -46,10 +46,11 @@ class _HomePageState extends State<HomePage> {
               child: Text('Error: ${provider.errorMessage}'),
             );
           } else if (provider.pokeList.isNotEmpty) {
-            return Column(
+            return Stack(
               children: [
                 Expanded(
                     child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: max(currentCount, 2),
                   ),
@@ -59,45 +60,49 @@ class _HomePageState extends State<HomePage> {
                     return customPokemonTile(pokeData, context);
                   },
                 )),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: offset != 0
-                        ? MainAxisAlignment.spaceAround
-                        : MainAxisAlignment.end,
-                    children: [
-                      if (offset != 0)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: offset != 0
+                          ? MainAxisAlignment.spaceAround
+                          : MainAxisAlignment.end,
+                      children: [
+                        if (offset != 0)
+                          OutlinedButton(
+                            onPressed: () {
+                              if (offset > 0) {
+                                setState(() {
+                                  offset -= offsetChangeValue;
+                                  _fetchPokemonList();
+                                });
+                              }
+                            },
+                            child: const Row(
+                              children: [
+                                Icon(Icons.arrow_back_ios),
+                                Text('Previous Page'),
+                              ],
+                            ),
+                          ),
                         OutlinedButton(
                           onPressed: () {
-                            if (offset > 0) {
-                              setState(() {
-                                offset -= offsetChangeValue;
-                                _fetchPokemonList();
-                              });
-                            }
+                            setState(() {
+                              offset += offsetChangeValue;
+                              _fetchPokemonList();
+                            });
                           },
                           child: const Row(
                             children: [
-                              Icon(Icons.arrow_back_ios),
-                              Text('Previous Page'),
+                              Text('Next Page'),
+                              Icon(Icons.arrow_forward_ios),
                             ],
                           ),
                         ),
-                      OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            offset += offsetChangeValue;
-                            _fetchPokemonList();
-                          });
-                        },
-                        child: const Row(
-                          children: [
-                            Text('Next Page'),
-                            Icon(Icons.arrow_forward_ios),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

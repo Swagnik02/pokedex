@@ -3,6 +3,7 @@ import 'package:pokedex/extensions/string_casing_extension.dart';
 import 'package:pokedex/models/poke_model.dart';
 import 'package:pokedex/extensions/type_colours.dart';
 import 'package:pokedex/screens/pokemon_data_page.dart';
+import 'package:pokedex/widgets/themes.dart';
 
 Widget customPokemonTile(PokeData pokedata, BuildContext context) {
   var domColor =
@@ -32,7 +33,7 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
               children: [
                 Text(
                   pokedata.details['id'].toString().toPokedexId,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: TextThemeStyle(context).themeHeadlineSmall,
                 ),
               ],
             ),
@@ -40,7 +41,7 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
               children: [
                 Text(
                   pokedata.name.toCapitalized,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: TextThemeStyle(context).themeHeadlineSmall,
                 ),
               ],
             ),
@@ -55,8 +56,8 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
                         padding: const EdgeInsets.all(0),
                         elevation: 1,
                         label: Text(
-                          type['type']['name'],
-                          style: const TextStyle(color: Colors.white),
+                          type['type']['name'].toString().toCapitalized,
+                          style: TextThemeStyle(context).themeOfTypeChips,
                         ),
                         backgroundColor:
                             typeColors[type['type']['name'].toLowerCase()] ??
@@ -70,6 +71,7 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
                       ? Image.network(
                           pokedata.details['sprites']['front_default'],
                           height: 100,
+                          fit: BoxFit.contain,
                         )
                       : const CircularProgressIndicator(),
                 ),
