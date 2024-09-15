@@ -65,16 +65,26 @@ Widget customPokemonTile(PokeData pokedata, BuildContext context) {
                       );
                     }).toList(),
                   ),
-                Hero(
-                  tag: pokedata.name,
-                  child: pokedata.details['sprites']?['front_default'] != null
-                      ? Image.network(
-                          pokedata.details['sprites']['front_default'],
-                          height: 100,
-                          fit: BoxFit.contain,
-                        )
-                      : const CircularProgressIndicator(),
-                ),
+                Stack(children: [
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Image.asset(
+                      'assets/pokeball.png',
+                      height: 70,
+                    ),
+                  ),
+                  Hero(
+                    tag: pokedata.name,
+                    child: pokedata.details['sprites']?['front_default'] != null
+                        ? Image.network(
+                            pokedata.details['sprites']['front_default'],
+                            height: 100,
+                            fit: BoxFit.contain,
+                          )
+                        : const CircularProgressIndicator(),
+                  ),
+                ]),
               ],
             ),
           ],

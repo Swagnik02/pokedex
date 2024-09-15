@@ -91,6 +91,17 @@ class _PokemonDataPageState extends State<PokemonDataPage> {
                 length: 4,
                 child: Stack(
                   children: [
+                    Positioned(
+                      top: 30,
+                      right: 40,
+                      child: Opacity(
+                        opacity: 0.4, // 10% opacity
+                        child: Image.asset(
+                          'assets/pokeball.png',
+                          height: 250,
+                        ),
+                      ),
+                    ),
                     _header(context, pokeData),
                     _stats(context, pokeData),
                     _image(pokeData),

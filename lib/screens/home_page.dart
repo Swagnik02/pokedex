@@ -34,12 +34,25 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poké Tab'),
+        backgroundColor: Colors.transparent,
       ),
       body: Consumer<PokemonProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Stack(
+              children: [
+                Center(
+                  child: Opacity(
+                    opacity: 0.8,
+                    child: Image.asset(
+                      'assets/pokeball.png',
+                    ),
+                  ),
+                ),
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
             );
           } else if (provider.errorMessage != null) {
             return Center(
@@ -48,6 +61,10 @@ class _HomePageState extends State<HomePage> {
           } else if (provider.pokeList.isNotEmpty) {
             return Stack(
               children: [
+                Align(
+                  alignment: Alignment(0, -1.5),
+                  child: Image.asset('assets/pokeball.png'),
+                ),
                 Positioned.fill(
                     child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
