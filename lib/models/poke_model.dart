@@ -9,13 +9,11 @@ class PokeData {
     required this.details,
   });
 
-  // Factory constructor to create an instance of PokeData from a JSON object
   factory PokeData.fromJson(Map<String, dynamic> json) {
     return PokeData(
-      url: json['url'],
-      name: json['name'],
-      details:
-          json['details'] ?? {}, // Assign an empty map if 'details' is null
+      url: json['url'] ?? '', // Provide a default empty string if null
+      name: json['name'] ?? '', // Provide a default empty string if null
+      details: json['details'] ?? {}, // Provide an empty map if null
     );
   }
 

@@ -7,7 +7,7 @@ import 'package:pokedex/providers/poke_provider.dart';
 import 'package:pokedex/widgets/themes.dart';
 import 'package:provider/provider.dart';
 
-class PokemonDataPage extends StatelessWidget {
+class PokemonDataPage extends StatefulWidget {
   final String pokemonName;
   final Color domColor;
 
@@ -18,18 +18,40 @@ class PokemonDataPage extends StatelessWidget {
   });
 
   @override
+  State<PokemonDataPage> createState() => _PokemonDataPageState();
+}
+
+class _PokemonDataPageState extends State<PokemonDataPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch the Pokémon details and then get the evolution chain URL
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pokemonProvider =
+          Provider.of<PokemonProvider>(context, listen: false);
+
+      final pokeData = pokemonProvider.findPokemonByName(widget.pokemonName);
+      if (pokeData != null) {
+        pokemonProvider.findEvolutionChainUrl(
+            pokeData.details['species']['url'].toString());
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ThemeData dynamicTheme = ThemeData(
-      primaryColor: domColor,
+      primaryColor: widget.domColor,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: domColor,
+        seedColor: widget.domColor,
       ),
-      scaffoldBackgroundColor: domColor.withOpacity(0.8),
+      scaffoldBackgroundColor: widget.domColor.withOpacity(0.8),
       tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
-          borderSide: BorderSide(color: domColor, width: 4),
+          borderSide: BorderSide(color: widget.domColor, width: 4),
         ),
-        labelColor: domColor,
+        labelColor: widget.domColor,
         unselectedLabelColor: Colors.grey,
       ),
     );
@@ -51,7 +73,7 @@ class PokemonDataPage extends StatelessWidget {
         body: FutureBuilder<PokeData?>(
           future: Future.delayed(Duration.zero, () {
             return Provider.of<PokemonProvider>(context, listen: false)
-                .findPokemonByName(pokemonName);
+                .findPokemonByName(widget.pokemonName);
           }),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -70,7 +92,7 @@ class PokemonDataPage extends StatelessWidget {
                 child: Stack(
                   children: [
                     _header(context, pokeData),
-                    _stats(pokeData),
+                    _stats(context, pokeData),
                     _image(pokeData),
                   ],
                 ),
@@ -89,7 +111,7 @@ class PokemonDataPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Hero(
-          tag: pokemonName,
+          tag: widget.pokemonName,
           child: SizedBox(
             height: 300,
             child: imageViewer(pokeData),
@@ -99,7 +121,7 @@ class PokemonDataPage extends StatelessWidget {
     );
   }
 
-  Column _stats(PokeData pokeData) {
+  Column _stats(BuildContext context, PokeData pokeData) {
     return Column(
       children: [
         const SizedBox(height: 230),
@@ -127,7 +149,7 @@ class PokemonDataPage extends StatelessWidget {
                     children: [
                       _buildAboutTab(pokeData),
                       _buildBaseStatsTab(pokeData),
-                      _buildEvolutionTab(pokeData),
+                      _buildEvolutionTab(context, pokeData),
                       _buildMovesTab(pokeData),
                     ],
                   ),
@@ -266,13 +288,60 @@ class PokemonDataPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEvolutionTab(PokeData pokeData) {
-    // Placeholder content
-    return const Center(child: Text('Evolution data is not available.'));
+  Widget _buildEvolutionTab(BuildContext context, PokeData pokeData) {
+    final pokemonProvider = Provider.of<PokemonProvider>(context);
+    final evolutionChain = pokemonProvider.evolutionChain;
+    final isLoading = pokemonProvider.isLoading;
+    final errorMessage = pokemonProvider.errorMessage;
+
+    if (isLoading) {
+      // Show a loading indicator while data is being fetched
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (errorMessage != null) {
+      // Show an error message if there was an error fetching data
+      return Center(child: Text('Error: $errorMessage'));
+    }
+
+    if (evolutionChain.isEmpty) {
+      // Show a message if there is no data available
+      return Center(child: Text('No evolution data available'));
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: evolutionChain.map((pokemon) {
+            return _evolutionTile(pokemon);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _evolutionTile(PokeData pokemon) {
+    return Row(
+      children: [
+        SizedBox(
+          height: 200,
+          child: Image.network(
+            pokemon.details['sprites']['front_default'],
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          pokemon.name.toUpperCase(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
   }
 
   Widget _buildMovesTab(PokeData pokeData) {
-    // Placeholder content
     return const Center(child: Text('Moves data is not available.'));
   }
 }

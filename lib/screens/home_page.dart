@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
           } else if (provider.pokeList.isNotEmpty) {
             return Stack(
               children: [
-                Expanded(
+                Positioned.fill(
                     child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
